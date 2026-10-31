@@ -1,0 +1,63 @@
+# System Configuration for Traffic Violation Detection System
+
+system:
+  app_name: "Smart Traffic Violation Detection & ALPR"
+  version: "1.0.0"
+  debug: true
+  log_level: "INFO"
+
+camera:
+  camera_id: "CAM_INTERSECTION_01"
+  name: "Giao lộ Nguyễn Trãi - Khuất Duy Tiến"
+  source: "data/sample_traffic.mp4"
+  fps: 30
+  resolution: [1920, 1080]
+  buffer_size: 150 # 5 seconds circular buffer at 30fps
+
+inference:
+  device: "cuda:0" # or "cpu"
+  half_precision: true
+  batch_size: 1
+  vehicle_model: "yolov8s.pt"
+  plate_model: "models/checkpoints/plate_detector.pt"
+  confidence_threshold: 0.45
+  iou_threshold: 0.50
+
+tracking:
+  tracker_type: "bytetrack"
+  track_high_thresh: 0.5
+  track_low_thresh: 0.1
+  new_track_thresh: 0.6
+  track_buffer: 30
+  match_thresh: 0.8
+  min_trajectory_points: 5
+
+traffic_light:
+  state_update_interval_frames: 3
+  color_check_method: "hsv_ratio" # "hsv_ratio" or "cnn_classifier"
+  grace_period_seconds: 0.8 # buffer after light turns red
+
+rules:
+  red_light:
+    enabled: true
+    min_crossing_depth_px: 25 # pixels vehicle must travel beyond stop line
+  wrong_way:
+    enabled: true
+    cosine_threshold: -0.70 # cos(theta) < -0.7 means angle > 135 deg
+    min_continuous_frames: 12
+    min_movement_px: 30
+  illegal_turn:
+    enabled: true
+    min_trajectory_len: 15
+
+storage:
+  backend: "local" # or "s3"
+  local_path: "./data/evidence"
+  s3:
+    endpoint: "http://localhost:9000"
+    access_key: "minioadmin"
+    secret_key: "minioadmin"
+    bucket: "traffic-evidence"
+
+database:
+  url: "sqlite:///./traffic_violations.db"
