@@ -1,54 +1,132 @@
 {
   "camera_id": "CAM_INTERSECTION_01",
   "name": "Ngã tư Nguyễn Trãi - Khuất Duy Tiến",
-  "resolution": [1920, 1080],
-  "traffic_light_roi": [1450, 80, 1530, 260],
+  "resolution": [
+    1920,
+    1080
+  ],
+  "traffic_light_roi": [
+    1450,
+    80,
+    1530,
+    260
+  ],
   "stop_line": [
-    [420, 720],
-    [1480, 720]
+    [
+      420,
+      720
+    ],
+    [
+      1480,
+      720
+    ]
   ],
   "intersection_polygon": [
-    [350, 715],
-    [1550, 715],
-    [1750, 1050],
-    [150, 1050]
+    [
+      350,
+      715
+    ],
+    [
+      1550,
+      715
+    ],
+    [
+      1750,
+      1050
+    ],
+    [
+      150,
+      1050
+    ]
   ],
   "lanes": [
     {
       "lane_id": 1,
       "name": "Làn 1 - Rẽ trái duy nhất",
       "polygon": [
-        [420, 720],
-        [750, 720],
-        [600, 1070],
-        [150, 1070]
+        [
+          420,
+          720
+        ],
+        [
+          750,
+          720
+        ],
+        [
+          600,
+          1070
+        ],
+        [
+          150,
+          1070
+        ]
       ],
-      "allowed_directions": ["LEFT"],
-      "flow_vector": [-0.85, 0.52]
+      "allowed_directions": [
+        "LEFT"
+      ],
+      "flow_vector": [
+        -0.85,
+        0.52
+      ]
     },
     {
       "lane_id": 2,
       "name": "Làn 2 - Đi thẳng",
       "polygon": [
-        [750, 720],
-        [1120, 720],
-        [1180, 1070],
-        [600, 1070]
+        [
+          750,
+          720
+        ],
+        [
+          1120,
+          720
+        ],
+        [
+          1180,
+          1070
+        ],
+        [
+          600,
+          1070
+        ]
       ],
-      "allowed_directions": ["STRAIGHT"],
-      "flow_vector": [0.0, 1.0]
+      "allowed_directions": [
+        "STRAIGHT"
+      ],
+      "flow_vector": [
+        0.0,
+        1.0
+      ]
     },
     {
       "lane_id": 3,
       "name": "Làn 3 - Đi thẳng & Rẽ phải",
       "polygon": [
-        [1120, 720],
-        [1480, 720],
-        [1750, 1070],
-        [1180, 1070]
+        [
+          1120,
+          720
+        ],
+        [
+          1480,
+          720
+        ],
+        [
+          1750,
+          1070
+        ],
+        [
+          1180,
+          1070
+        ]
       ],
-      "allowed_directions": ["STRAIGHT", "RIGHT"],
-      "flow_vector": [0.35, 0.93]
+      "allowed_directions": [
+        "STRAIGHT",
+        "RIGHT"
+      ],
+      "flow_vector": [
+        0.35,
+        0.93
+      ]
     }
   ]
 }

@@ -1,10 +1,15 @@
 """SQLAlchemy Models for Traffic Violations & Camera Configurations."""
 
-from datetime import datetime
+import time
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
+
+
+def utc_now():
+    return datetime.now(timezone.utc)
 
 
 class ViolationRecord(Base):
@@ -30,8 +35,8 @@ class ViolationRecord(Base):
     video_clip_path = Column(String(255), nullable=True)
     metadata_json = Column(Text, nullable=True)
 
-    timestamp = Column(Float, default=datetime.utcnow().timestamp)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(Float, default=time.time)
+    created_at = Column(DateTime, default=utc_now)
 
 
 class CameraConfig(Base):
@@ -44,4 +49,4 @@ class CameraConfig(Base):
     source_url = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
     roi_config_json = Column(Text, nullable=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)

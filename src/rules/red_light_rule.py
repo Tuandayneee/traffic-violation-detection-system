@@ -47,17 +47,18 @@ class RedLightRule(BaseViolationRule):
             if len(vehicle.trajectory) < 2:
                 continue
 
-            # Trajectory segment between previous and current bottom-center
-            p_prev = vehicle.trajectory[-2]
-            p_curr = vehicle.trajectory[-1]
-            motion_segment = LineString([p_prev, p_curr])
+            # Check recent trajectory window (up to last 10 points)
+            traj_pts = list(vehicle.trajectory)[-min(len(vehicle.trajectory), 10):]
+            recent_motion = LineString(traj_pts)
 
-            # 1. Did the vehicle cross the stop line?
-            if motion_segment.intersects(self.stop_line_geom):
-                # 2. Is current point advancing into the intersection conflict zone?
+            # 1. Did the vehicle's trajectory intersect the stop line?
+            if recent_motion.intersects(self.stop_line_geom):
+                p_curr = vehicle.trajectory[-1]
                 curr_point = Point(p_curr)
+
+                # 2. Is current position advancing into the intersection conflict zone?
                 if self.intersection_geom.contains(curr_point):
-                    # 3. Confirm crossing direction & depth
+                    # 3. Confirm crossing direction & depth threshold
                     dist_from_stop_line = self.stop_line_geom.distance(curr_point)
                     if dist_from_stop_line >= self.min_crossing_depth_px:
                         self.mark_flagged(tid)
