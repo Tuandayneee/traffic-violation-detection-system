@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Traffic Guard - Hệ Thống Giám Sát & Phạt Nguội Thông Minh</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-traffic-light text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    TRAFFIC VIOLATION GUARD
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">AI ACTIVE</span>
+                </h1>
+                <p class="text-xs text-slate-400">Giao Lộ: Nguyễn Trãi - Khuất Duy Tiến | Camera ID: CAM_01</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+            <button onclick="switchTab('monitor')" id="tab-monitor" class="nav-tab active px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                <i class="fa-solid fa-video"></i> Giám Sát Live
+            </button>
+            <button onclick="switchTab('violations')" id="tab-violations" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                <i class="fa-solid fa-triangle-exclamation"></i> Duyệt Phạt Nguội
+                <span id="badge-pending" class="ml-1 bg-rose-500 text-white text-xs px-2 py-0.2 rounded-full font-bold">0</span>
+            </button>
+            <button onclick="switchTab('roi')" id="tab-roi" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                <i class="fa-solid fa-draw-polygon"></i> Cấu Hình ROI
+            </button>
+        </nav>
+
+        <!-- System Stats Summary -->
+        <div class="flex items-center space-x-6 text-sm">
+            <div class="text-right">
+                <div class="text-xs text-slate-400">TỔNG VI PHẠM</div>
+                <div id="stat-total" class="text-base font-bold text-white">0</div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-slate-400">ĐÃ DUYỆT PHẠT</div>
+                <div id="stat-approved" class="text-base font-bold text-emerald-400">0</div>
+            </div>
+            <div class="w-px h-8 bg-slate-800"></div>
+            <div class="flex items-center gap-2 text-slate-300">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-mono">30 FPS / TensorRT</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="flex-1 p-6 max-w-7xl w-full mx-auto">
+
+        <!-- TAB 1: REAL-TIME MONITOR -->
+        <section id="view-monitor" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Video Feed Player -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
+                    <div class="px-4 py-3 bg-slate-800/60 border-b border-slate-700/60 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-sm font-medium text-slate-200">
+                            <i class="fa-solid fa-tower-broadcast text-rose-500"></i> RTSP Edge Feed [1080p@30fps]
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span id="light-indicator" class="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> ĐÈN ĐỎ
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+                        <canvas id="liveCanvas" width="960" height="540" class="w-full h-full object-contain"></canvas>
+                        
+                        <!-- Overlay HUD Watermark -->
+                        <div class="absolute bottom-3 left-4 text-xs font-mono text-white/70 bg-black/50 px-2 py-1 rounded">
+                            STOP LINE: ACTIVE | FLOW: ALIGNED | VEHICLES: <span id="hud-count">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Alert Feed List -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col p-4 shadow-xl">
+                    <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-bell text-amber-400 mr-2"></i> Cảnh Báo Vừa Ghi Nhận</span>
+                        <span class="text-xs text-slate-400 font-normal">Realtime</span>
+                    </h2>
+
+                    <div id="liveAlertsList" class="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[500px]">
+                        <!-- Populated dynamically via JS -->
+                        <div class="text-center py-12 text-slate-500 text-sm">
+                            Đang kết nối luồng sự kiện vi phạm...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: VIOLATION REVIEW & PHAT NGUOI -->
+        <section id="view-violations" class="hidden space-y-6">
+            <!-- Filter Bar -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap gap-4 items-center justify-between shadow-lg">
+                <div class="flex items-center gap-3">
+                    <input type="text" id="filterPlate" placeholder="Tìm biển số (VD: 29A)..." class="bg-slate-800 border border-slate-700 text-sm px-3.5 py-2 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-blue-500">
+                    <select id="filterType" class="bg-slate-800 border border-slate-700 text-sm px-3.5 py-2 rounded-xl text-white focus:outline-none focus:border-blue-500">
+                        <option value="">Tất cả loại lỗi</option>
+                        <option value="RED_LIGHT_RUNNING">Vượt đèn đỏ</option>
+                        <option value="WRONG_WAY_DRIVING">Đi ngược chiều</option>
+                        <option value="ILLEGAL_TURN">Rẽ sai làn / Cấm rẽ</option>
+                    </select>
+                    <select id="filterStatus" class="bg-slate-800 border border-slate-700 text-sm px-3.5 py-2 rounded-xl text-white focus:outline-none focus:border-blue-500">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="PENDING" selected>Chờ duyệt (Pending)</option>
+                        <option value="APPROVED">Đã xác nhận phạt</option>
+                        <option value="REJECTED">Đã bỏ qua</option>
+                    </select>
+                </div>
+                <button onclick="fetchViolations()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition flex items-center gap-2">
+                    <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+                </button>
+            </div>
+
+            <!-- Violations Table -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-800/80 text-xs uppercase font-bold text-slate-400 border-b border-slate-700">
+                        <tr>
+                            <th class="px-5 py-3.5">Mã Sự Kiện</th>
+                            <th class="px-5 py-3.5">Loại Lỗi</th>
+                            <th class="px-5 py-3.5">Biển Số Xe</th>
+                            <th class="px-5 py-3.5">Phương Tiện</th>
+                            <th class="px-5 py-3.5">Thời Gian</th>
+                            <th class="px-5 py-3.5">Trạng Thái</th>
+                            <th class="px-5 py-3.5 text-right">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="violationsTableBody" class="divide-y divide-slate-800/80">
+                        <!-- Rows rendered via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TAB 3: INTERACTIVE ROI CONFIGURATOR -->
+        <section id="view-roi" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-pen-ruler text-blue-500"></i> Công Cụ Cấu Hình Vạch Dừng & Làn Đường
+                        </h2>
+                        <p class="text-xs text-slate-400">Click trên khung hình để đặt tọa độ Vạch dừng (Stop Line) hoặc Đa giác Làn đường.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="resetRoiDraft()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm px-4 py-2 rounded-xl transition">
+                            Hủy chỉnh sửa
+                        </button>
+                        <button onclick="saveRoiConfig()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu Cấu Hình Về Server
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative bg-black rounded-xl overflow-hidden aspect-video border border-slate-800 flex items-center justify-center">
+                    <canvas id="roiCanvas" width="960" height="540" class="cursor-crosshair w-full h-full object-contain"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Review Modal Dialog -->
+    <div id="reviewModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-blue-500"></i> Thẩm Định Biên Bản Vi Phạm
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div id="modalContent" class="space-y-4">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                <button onclick="submitReview('REJECTED')" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-5 py-2 rounded-xl text-sm font-semibold transition">
+                    Bỏ Qua / Bắt Nhầm
+                </button>
+                <button onclick="submitReview('APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Xác Nhận Phạt Nguội
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

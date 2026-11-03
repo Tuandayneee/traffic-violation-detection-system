@@ -1,0 +1,32 @@
+/* Custom Modern Dark Dashboard Styling */
+
+.nav-tab.active {
+    background-color: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.nav-tab:not(.active) {
+    color: #94a3b8;
+}
+
+.nav-tab:not(.active):hover {
+    color: #ffffff;
+    background-color: #334155;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}

@@ -75,10 +75,12 @@ def test_api_health_and_violations(client):
     assert res.status_code == 200
     assert res.json()["status"] == "HEALTHY"
 
-    # Insert a dummy record
+    # Insert a dummy record with unique ID
+    import uuid
+    unique_event_id = f"API-TEST-{uuid.uuid4().hex[:8]}"
     db = SessionLocal()
     record = ViolationRecord(
-        event_id="API-TEST-01",
+        event_id=unique_event_id,
         violation_type="RED_LIGHT_RUNNING",
         license_plate="30F-999.99",
         status="PENDING"
