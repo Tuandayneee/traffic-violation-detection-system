@@ -1,0 +1,16 @@
+# YOLO Dataset Configuration for Traffic Vehicle Detection
+# Paths can be relative to project root or absolute paths
+path: ./data/traffic_dataset
+train: images/train
+val: images/val
+test: images/test
+
+# Number of classes
+nc: 4
+
+# Class names
+names:
+  0: car
+  1: motorcycle
+  2: bus
+  3: truck

@@ -1,32 +1,216 @@
-/* Custom Modern Dark Dashboard Styling */
+/* Automotive Cockpit HUD & Dark Matte Theme inspired by Smart In-Vehicle Displays */
 
-.nav-tab.active {
-    background-color: #2563eb;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-cockpit: #0c0d0e;
+    --bg-card: #15181b;
+    --bg-card-secondary: #1d2126;
+    --border-subtle: #272c33;
+    --accent-orange: #f97316;
+    --accent-orange-glow: rgba(249, 115, 22, 0.45);
+    --accent-blue: #38bdf8;
+    --accent-green: #22c55e;
+    --accent-red: #ef4444;
 }
 
-.nav-tab:not(.active) {
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: radial-gradient(circle at 50% 20%, #1e130c 0%, #0c0d0e 65%, #050607 100%);
+    color: #e2e8f0;
+}
+
+/* Outer In-Vehicle Cockpit Frame Bezel */
+.cockpit-bezel {
+    background: #090a0c;
+    border: 1px solid #23272e;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(249, 115, 22, 0.12);
+}
+
+/* Left Vertical Dock / Navigation Pill */
+.cockpit-dock {
+    background: #060708;
+    border-right: 1px solid #1c2026;
+}
+
+/* Category Sidebar Item */
+.menu-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
     color: #94a3b8;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
 }
 
-.nav-tab:not(.active):hover {
+.menu-nav-item:hover {
     color: #ffffff;
-    background-color: #334155;
+    background: #181c22;
+}
+
+.menu-nav-item.active {
+    color: #ffffff;
+    background: #181c22;
+    border-left-color: var(--accent-orange);
+    box-shadow: inset 4px 0 12px rgba(249, 115, 22, 0.15);
+}
+
+/* Signature Glowing Orange Box from reference image */
+.glowing-orange-card {
+    border: 1.5px solid var(--accent-orange);
+    box-shadow: 0 0 25px var(--accent-orange-glow), inset 0 0 15px rgba(249, 115, 22, 0.1);
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(21, 24, 27, 0.95) 100%);
+}
+
+/* Custom Orange Range Slider */
+input[type="range"].slider-orange {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 9999px;
+    background: #2a3039;
+    outline: none;
+}
+
+input[type="range"].slider-orange::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid var(--accent-orange);
+    box-shadow: 0 0 10px var(--accent-orange);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+input[type="range"].slider-orange::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Speed Limit Circular Badges */
+.speed-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    line-height: 1;
+    background: #1a1e24;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.speed-badge.active-red {
+    border: 3px solid #ef4444;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+}
+
+.speed-badge.active-blue {
+    border: 3px solid #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+/* Stepper Box [- | 200 m | +] */
+.stepper-container {
+    display: flex;
+    align-items: center;
+    background: #181c22;
+    border: 1px solid #282f3a;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.stepper-btn {
+    padding: 0.5rem 1rem;
+    color: #94a3b8;
+    font-weight: 700;
+    transition: background 0.15s ease;
+}
+
+.stepper-btn:hover {
+    background: #232933;
+    color: #ffffff;
+}
+
+.stepper-value {
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #ffffff;
+    min-width: 90px;
+    text-align: center;
+    border-left: 1px solid #282f3a;
+    border-right: 1px solid #282f3a;
+}
+
+/* Modern Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #272d36;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--accent-orange);
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(20px);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
 }
 ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #090a0c;
 }
 ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #222730;
     border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #f97316;
 }
